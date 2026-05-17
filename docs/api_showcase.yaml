@@ -1,0 +1,727 @@
+
+openapi: 3.0.0
+info:
+  title: Hospital Management System API
+  description: REST API for hospital management with JWT authentication and role-based access control
+  version: 1.0.0
+  contact:
+    name: Hospital Management Team
+
+servers:
+  - url: http://localhost:5000
+    description: Development Server
+  - url: https://api.hospital.com
+    description: Production Server
+
+paths:
+  # ------- Auth routes ------- 
+  # All auth routes are prefixed with /api/auth
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      summary: login with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required: [username, password]
+      responses:
+        200:
+          description: Login successful, returns JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+
+  /api/auth/register:
+    post:
+      tags: [Authentication]
+      summary: register new patient account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+              required: [username, email, password, name]
+      responses:
+        200:
+          description: Registration successful
+
+  /api/auth/me:
+    get:
+      tags: [Authentication]
+      summary: get current logged in user details
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Current user information
+
+  /api/auth/logout:
+    post:
+      tags: [Authentication]
+      summary: logout (client-side token deletion)
+      responses:
+        200:
+          description: Logout successful
+
+  # -------- Admin routes -------- 
+  # All admin routes are prefixed with /api/admin
+  /api/admin/dashboard-stats:
+    get:
+      tags: [Admin]
+      summary: get admin dashboard stats with caching
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_doctors:
+                        type: integer
+                      total_patients:
+                        type: integer
+                      total_appointments:
+                        type: integer
+
+  /api/admin/doctors:
+    get:
+      tags: [Admin]
+      summary: get all doctors list
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of all doctors
+
+    post:
+      tags: [Admin]
+      summary: create new doctor account
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                specialization:
+                  type: string
+                phone:
+                  type: string
+                experience:
+                  type: integer
+                qualification:
+                  type: string
+              required: [name, email, specialization, phone, experience, qualification]
+      responses:
+        200:
+          description: Doctor created with auto-generated credentials
+
+  /api/admin/doctors/{doctor_id}:
+    put:
+      tags: [Admin]
+      summary: update doctor details
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: doctor_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: Doctor updated successfully
+
+    delete:
+      tags: [Admin]
+      summary: deactivate doctor account
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: doctor_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Doctor deactivated
+
+  /api/admin/patients:
+    get:
+      tags: [Admin]
+      summary: get all patients list
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of all patients
+
+  /api/admin/appointments:
+    get:
+      tags: [Admin]
+      summary: get all appointments list
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of all appointments
+
+  /api/admin/appointments/{appointment_id}:
+    put:
+      tags: [Admin]
+      summary: update appointment status or notes
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        200:
+          description: Appointment updated
+
+  /api/admin/search/doctors:
+    get:
+      tags: [Admin]
+      summary: search doctors by name or specialization
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: specialization
+          schema:
+            type: string
+      responses:
+        200:
+          description: Search results
+
+  /api/admin/search/patients:
+    get:
+      tags: [Admin]
+      summary: search patients by name or email
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Search results
+
+  /api/admin/patients/{patient_id}/blacklist:
+    put:
+      tags: [Admin]
+      summary: toggle patient blacklist status
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: patient_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Patient blacklist status toggled
+
+  /api/admin/patients/{patient_id}/history:
+    get:
+      tags: [Admin]
+      summary: get patient appointment history
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: patient_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Patient history retrieved
+
+  # -------- Doctor routes -------- 
+  # All doctor routes are prefixed with /api/doctor
+  /api/doctor/dashboard:
+    get:
+      tags: [Doctor]
+      summary: get doctor dashboard stats
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Doctor dashboard data
+
+  /api/doctor/patient-history/{patient_id}:
+    get:
+      tags: [Doctor]
+      summary: get patient history with appointments and treatments
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: patient_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Patient treatment history
+
+  /api/doctor/appointments:
+    get:
+      tags: [Doctor]
+      summary: get doctor's appointments with filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: time_filter
+          schema:
+            type: string
+      responses:
+        200:
+          description: Doctor appointments list
+
+  /api/doctor/patients:
+    get:
+      tags: [Doctor]
+      summary: get all assigned patients
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of assigned patients
+
+  /api/doctor/appointments/{appointment_id}/status:
+    put:
+      tags: [Doctor]
+      summary: update appointment status (complete, cancel, etc)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [completed, cancelled, booked]
+                notes:
+                  type: string
+      responses:
+        200:
+          description: Appointment status updated
+
+  /api/doctor/patient-history:
+    post:
+      tags: [Doctor]
+      summary: add treatment details for an appointment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                diagnosis:
+                  type: string
+                prescription:
+                  type: string
+                visit_type:
+                  type: string
+                treatment_notes:
+                  type: string
+              required: [appointment_id, diagnosis, treatment_notes]
+      responses:
+        200:
+          description: Treatment details added
+
+  /api/doctor/availability:
+    get:
+      tags: [Doctor]
+      summary: get doctor's 7-day availability schedule
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Doctor availability schedule
+
+  /api/doctor/set-slots:
+    post:
+      tags: [Doctor]
+      summary: set doctor availability for specific date/slot combinations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slots:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                      slot_type:
+                        type: string
+                        enum: [morning, evening]
+                      is_available:
+                        type: boolean
+      responses:
+        200:
+          description: Availability slots updated
+
+  /api/doctor/profile:
+    put:
+      tags: [Doctor]
+      summary: update doctor profile information
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                specialization:
+                  type: string
+                experience:
+                  type: integer
+                qualification:
+                  type: string
+      responses:
+        200:
+          description: Profile updated successfully
+
+  /api/doctor/available-slots:
+    get:
+      tags: [Doctor]
+      summary: get doctor's available appointment slots
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Available slots list
+
+  # -------- patient routes --------
+  # All patient routes are prefixed with /api/patient
+  /api/patient/dashboard:
+    get:
+      tags: [Patient]
+      summary: get patient dashboard stats
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Patient dashboard data
+
+  /api/patient/departments:
+    get:
+      tags: [Patient]
+      summary: get all departments with active doctors
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of departments with doctors
+
+  /api/patient/available-slots:
+    get:
+      tags: [Patient]
+      summary: get available slots for doctor on specific date
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: doctor_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Available slots for specified date
+
+  /api/patient/doctors:
+    get:
+      tags: [Patient]
+      summary: get doctors list by department
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: department
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of doctors
+
+  /api/patient/appointments:
+    get:
+      tags: [Patient]
+      summary: get patient's appointments
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        200:
+          description: Patient appointments list
+
+    post:
+      tags: [Patient]
+      summary: book new appointment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                appointment_date:
+                  type: string
+                  format: date
+                appointment_time:
+                  type: string
+                notes:
+                  type: string
+              required: [doctor_id, appointment_date, appointment_time]
+      responses:
+        200:
+          description: Appointment booked successfully
+
+  /api/patient/appointments/{appointment_id}:
+    delete:
+      tags: [Patient]
+      summary: cancel appointment
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Appointment cancelled
+
+  /api/patient/history:
+    get:
+      tags: [Patient]
+      summary: get patient medical history with treatments
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Medical history with treatments
+
+  /patient/doctor/availability/{doctor_id}:
+    get:
+      tags: [Patient]
+      summary: get doctor availability schedule
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: doctor_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Doctor availability retrieved
+
+  /patient/export-history:
+    post:
+      tags: [Patient]
+      summary: export patient history as csv via email
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: CSV export started, will be emailed
+
+  /patient/profile:
+    put:
+      tags: [Patient]
+      summary: update patient profile information
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+                age:
+                  type: integer
+                gender:
+                  type: string
+                medical_history:
+                  type: string
+                emergency_contact:
+                  type: string
+      responses:
+        200:
+          description: Profile updated successfully
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, doctor, patient]
+        is_active:
+          type: boolean
+
+tags:
+  - name: Authentication
+    description: Login, Register, Logout operations
+  - name: Admin
+    description: Admin dashboard and user management
+  - name: Doctor
+    description: Doctor dashboard and patient management
+  - name: Patient
+    description: Patient appointments and treatment history
