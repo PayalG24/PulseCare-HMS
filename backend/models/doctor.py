@@ -1,5 +1,5 @@
 from datetime import datetime
-from database import db
+from backend.database import db
 
 class Doctor(db.Model):
     __tablename__ = 'doctors'
