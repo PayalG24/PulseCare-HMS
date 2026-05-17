@@ -4,10 +4,11 @@ from flask_mail import Mail
 from flask_jwt_extended import JWTManager
 from werkzeug.security import generate_password_hash
 from celery import Celery
-from database import db
+from backend.database import db
 from dotenv import load_dotenv
 import time
 import os
+from backend.models.user import User
 from datetime import datetime, timedelta
 
 load_dotenv()
