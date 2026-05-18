@@ -1,6 +1,6 @@
 from app import app
-from database import db
-from models import User, Doctor, Patient, DoctorAvailability, Appointment, Treatment
+from backend.database import db
+from backend.models import User, Doctor, Patient, DoctorAvailability, Appointment, Treatment
 from werkzeug.security import generate_password_hash
 from datetime import date, timedelta, time as datetime_time, datetime
 
