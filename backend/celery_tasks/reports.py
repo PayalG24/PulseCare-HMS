@@ -1,7 +1,7 @@
 from .imports import celery
 from .email_template import get_email_template
 from flask_mail import Message
-from models import Doctor, Appointment, Treatment, Patient
+from backend.models import Doctor, Appointment, Treatment, Patient
 from datetime import datetime
 import os
 import csv

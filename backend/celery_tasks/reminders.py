@@ -1,7 +1,7 @@
 from .imports import celery
 from .email_template import get_email_template
 from flask_mail import Message
-from models import Appointment
+from backend.models import Appointment
 from datetime import date
 
 @celery.task

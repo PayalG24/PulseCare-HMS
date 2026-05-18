@@ -4,7 +4,7 @@ from backend.models import User, Patient, Doctor, Appointment, Treatment
 from werkzeug.security import generate_password_hash
 from datetime import datetime, date
 from sqlalchemy import or_
-from decorators import admin_required
+from backend.decorators import admin_required
 
 admin_bp = Blueprint('admin', __name__)
 
