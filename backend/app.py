@@ -8,7 +8,7 @@ from backend.database import db
 from dotenv import load_dotenv
 import time
 import os
-from backend.models.user import User
+from backend.models import *
 from datetime import datetime, timedelta
 
 load_dotenv()
