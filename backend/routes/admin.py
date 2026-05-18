@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from database import db
+from backend.database import db
 from models import User, Patient, Doctor, Appointment, Treatment
 from werkzeug.security import generate_password_hash
 from datetime import datetime, date
