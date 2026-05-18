@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from backend.database import db
-from models import User, Patient, Doctor, Appointment, Treatment, DoctorAvailability
+from backend.models import User, Patient, Doctor, Appointment, Treatment, DoctorAvailability
 from datetime import datetime, date, time, timedelta
 from decorators import patient_required, patient_or_admin_required, get_current_user_id
 
