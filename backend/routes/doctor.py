@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.database import db
 from models import User, Doctor, Patient, Appointment, Treatment, DoctorAvailability
 from datetime import datetime, date, time, timedelta
-from decorators import doctor_required, get_current_user_id
+from backend.decorators import doctor_required, get_current_user_id
 
 doctor_bp = Blueprint('doctor', __name__)
 
