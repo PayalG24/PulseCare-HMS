@@ -8,7 +8,6 @@ from backend.database import db
 from dotenv import load_dotenv
 import time
 import os
-from backend.models import *
 from datetime import datetime, timedelta
 
 load_dotenv()
@@ -69,8 +68,8 @@ def make_celery(app):
 celery = make_celery(app)
 
 # register blueprints
-from models import *
-from routes import *
+from backend.models import *
+from backend.routes import *
 
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
