@@ -146,6 +146,7 @@ def setup_db():
             print("Admin created: admin/admin")
 
 # application entry point
+setup_db()
+
 if __name__ == '__main__':
-    setup_db()
     app.run(debug=True, port=5000)
