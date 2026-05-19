@@ -16,7 +16,16 @@ app = Flask(__name__, static_folder='../frontend', static_url_path='/static')
 
 # flask config
 app.config['SECRET_KEY'] = 'this-is-hms-web-app-123'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///PulseCare-database.db'
+database_url = os.getenv("DATABASE_URL")
+
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace(
+        "postgres://",
+        "postgresql://",
+        1
+    )
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # jwt config
@@ -44,6 +53,10 @@ app.config['DEBUG'] = True
 
 # initialize extensions
 db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+
 CORS(app)
 mail = Mail(app)
 jwt = JWTManager(app)
