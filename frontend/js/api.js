@@ -1,5 +1,5 @@
 // API functions for hospital app
-const API_URL = "/api"
+const API_URL = 'https://pulsecare-hms.onrender.com/api';
 
 // helper to get jwt token from localStorage
 function getToken() {
