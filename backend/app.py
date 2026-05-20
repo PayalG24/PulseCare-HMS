@@ -80,6 +80,9 @@ def make_celery(app):
 
 celery = make_celery(app)
 
+with app.app_context():
+    db.create_all()
+
 # register blueprints
 from backend.models import *
 from backend.routes import *
