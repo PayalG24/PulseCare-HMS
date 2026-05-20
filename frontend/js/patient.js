@@ -945,7 +945,7 @@ const PatientComponent = {
                 'Pediatrics': 'Medical care for infants and children',
                 'General Medicine': 'Primary healthcare and general checkups'
             };
-            return descriptions[specialization] || 'Specialized medical care';
+            return descriptions[name] || 'Specialized medical care';
         },
 
         getTreatmentDoctor(treatment) {
